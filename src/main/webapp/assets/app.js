@@ -22,13 +22,13 @@
   }));
   async function refreshCart(data) {
     const total = document.querySelector('[data-cart-total]');
-    if (total) total.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(data.total);
+    if (total) total.textContent = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(data.total);
     document.querySelectorAll('[data-cart-item]').forEach(row => {
       const id = row.dataset.cartItem;
       const entry = data.items.find(item => String(item.product.id) === id);
       if (!entry) { row.remove(); return; }
       const lineTotal = row.querySelector('.cart-line-price');
-      if (lineTotal) lineTotal.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(entry.lineTotal);
+      if (lineTotal) lineTotal.textContent = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(entry.lineTotal);
     });
   }
   document.querySelectorAll('[data-update-quantity]').forEach(input => input.addEventListener('change', async () => {

@@ -1,0 +1,8 @@
+package com.kavi.kavimart.controller;
+
+import com.kavi.kavimart.dto.UserResponseDTO;import com.kavi.kavimart.service.UserService;import com.kavi.kavimart.util.SessionKeys;import javax.servlet.ServletException;import javax.servlet.http.*;import java.io.IOException;
+/** Thin login, registration, and logout HTTP controller. */
+public class AuthServlet extends BaseServlet {
+ /** Show sign-in or registration form. */ protected void doGet(HttpServletRequest req,HttpServletResponse res)throws ServletException,IOException{String path=path(req);if(path.endsWith("register"))page(req,res,"auth/register.jsp");else page(req,res,"auth/login.jsp");}
+ /** Authenticate or register a buyer/seller; session ID rotates after login. */ protected void doPost(HttpServletRequest req,HttpServletResponse res)throws ServletException,IOException{try{String path=path(req);if(path.endsWith("logout")){HttpSession old=req.getSession(false);if(old!=null)old.invalidate();res.sendRedirect(req.getContextPath()+"/catalog");return;}UserService users=service(getServletContext(),SessionKeys.USER_SERVICE,UserService.class);UserResponseDTO user;if(path.endsWith("register")){user=users.register(req.getParameter("name"),req.getParameter("email"),req.getParameter("password"),req.getParameter("role"));}else{user=users.login(req.getParameter("email"),req.getParameter("password"));}HttpSession session=req.getSession(true);req.changeSessionId();session.setAttribute(SessionKeys.USER,user);String destination=switch(user.getRole()){case "SELLER"->"/seller/dashboard";case "ADMIN"->"/admin";default->"/catalog";};res.sendRedirect(req.getContextPath()+destination);}catch(Throwable t){error(req,res,t);}}
+}

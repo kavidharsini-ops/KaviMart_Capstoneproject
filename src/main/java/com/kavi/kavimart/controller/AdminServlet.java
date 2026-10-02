@@ -1,0 +1,8 @@
+package com.kavi.kavimart.controller;
+
+import com.kavi.kavimart.dto.UserResponseDTO;import com.kavi.kavimart.service.*;import com.kavi.kavimart.util.SessionKeys;import javax.servlet.ServletException;import javax.servlet.http.*;import java.io.IOException;
+/** Administrative user, order, and listing moderation controller. */
+public class AdminServlet extends BaseServlet {
+ protected void doGet(HttpServletRequest req,HttpServletResponse res)throws ServletException,IOException{try{req.setAttribute("users",service(getServletContext(),SessionKeys.USER_SERVICE,UserService.class).listUsers());req.setAttribute("orders",service(getServletContext(),SessionKeys.ORDER_SERVICE,OrderService.class).allOrders());req.setAttribute("products",service(getServletContext(),SessionKeys.PRODUCT_SERVICE,ProductService.class).listAll());page(req,res,"admin/index.jsp");}catch(Throwable t){error(req,res,t);}}
+ protected void doPost(HttpServletRequest req,HttpServletResponse res)throws ServletException,IOException{try{String action=req.getParameter("action");if("activate".equals(action)||"ban".equals(action)){service(getServletContext(),SessionKeys.USER_SERVICE,UserService.class).setActive(longParam(req,"userId"),"activate".equals(action));}else if("remove-listing".equals(action)){service(getServletContext(),SessionKeys.PRODUCT_SERVICE,ProductService.class).adminDelete(longParam(req,"productId"));}else throw new com.kavi.kavimart.exception.ValidationException(java.util.Map.of("action","Choose a valid admin action."));res.sendRedirect(req.getContextPath()+"/admin");}catch(Throwable t){error(req,res,t);}}
+}

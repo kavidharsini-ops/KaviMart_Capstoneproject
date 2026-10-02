@@ -1,0 +1,4 @@
+jdbc.url=jdbc:h2:file:./data/kavimart;AUTO_SERVER=TRUE
+jdbc.username=sa
+jdbc.password=
+hikari.maximumPoolSize=10

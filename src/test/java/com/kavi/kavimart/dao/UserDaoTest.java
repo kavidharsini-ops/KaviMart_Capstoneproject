@@ -18,12 +18,12 @@ class UserDaoTest {
     assertEquals("ADMIN", dao.findByEmail("admin@kavimart.com").orElseThrow().getRole());
     User user = new User(0, "Test Buyer", "newbuyer@example.com", "$2a$10$sample", "BUYER", true);
     User saved = dao.create(user);
-    assertEquals(6, saved.getId());
+    assertEquals(7, saved.getId());
     assertEquals("newbuyer@example.com", dao.findById(saved.getId()).orElseThrow().getEmail());
 
     User user2 = new User(0, "Test Buyer 2", "newbuyer2@example.com", "$2a$10$sample", "BUYER", true);
     User saved2 = dao.create(user2);
-    assertEquals(7, saved2.getId());
+    assertEquals(8, saved2.getId());
 
     // Duplicate email check
     assertThrows(ConflictException.class, () ->

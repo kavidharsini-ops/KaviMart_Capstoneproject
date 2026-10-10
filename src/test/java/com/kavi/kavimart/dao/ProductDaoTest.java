@@ -15,9 +15,9 @@ class ProductDaoTest {
   @Test
   void filtersAndPaginatesCatalog() {
     JdbcProductDao dao = new JdbcProductDao(TestDatabase.create("productsearch"));
-    var page = dao.search(new ProductQuery("handwoven", "", "price_asc", 1, 1));
+    var page = dao.search(new ProductQuery("wooden", "", "price_asc", 1, 1));
     assertEquals(1, page.getTotal());
-    assertEquals("Handwoven Indigo Tote", page.getItems().get(0).getName());
+    assertEquals("Wooden Building Blocks Set", page.getItems().get(0).getName());
     assertEquals(1, page.getPages());
   }
 

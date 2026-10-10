@@ -41,7 +41,7 @@ public class ProductServlet extends BaseServlet {
         int page = intParam(req, "page", 1);
         PageResult<Product> result = products.search(new ProductQuery(keyword, category, sort, page, 12));
         req.setAttribute("products", result);
-        req.setAttribute("categories", List.of("Apparel", "Accessories", "Home", "Beauty"));
+        req.setAttribute("categories", List.of("Toys", "Beauty", "Jewellery"));
         page(req, res, "buyer/catalog.jsp");
         return;
       }
@@ -74,7 +74,7 @@ public class ProductServlet extends BaseServlet {
       throws ServletException, IOException {
     UserResponseDTO user = user(req);
     String edit = req.getParameter("edit");
-    req.setAttribute("categories", List.of("Apparel", "Accessories", "Home", "Beauty"));
+    req.setAttribute("categories", List.of("Toys", "Beauty", "Jewellery"));
 
     if (edit != null) {
       Product p = products.get(Long.parseLong(edit));

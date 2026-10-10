@@ -28,7 +28,7 @@
       const entry = data.items.find(item => String(item.product.id) === id);
       if (!entry) { row.remove(); return; }
       const lineTotal = row.querySelector('.cart-line-price');
-      if (lineTotal) lineTotal.textContent = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(entry.lineTotal);
+      if (lineTotal) lineTotal.textContent = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(entry.product.price * entry.quantity);
     });
   }
   document.querySelectorAll('[data-update-quantity]').forEach(input => input.addEventListener('change', async () => {

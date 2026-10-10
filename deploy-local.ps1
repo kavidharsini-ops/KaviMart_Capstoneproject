@@ -7,7 +7,7 @@ java -version
 mvn -v
 
 Write-Host "2. Checking ports 8080 and 8005..." -ForegroundColor Cyan
-$busy = Get-NetTCPConnection -LocalPort 8080,8005 -ErrorAction SilentlyContinue
+$busy = Get-NetTCPConnection -LocalPort 8080,8005 -State Listen -ErrorAction SilentlyContinue
 if ($busy) {
     Write-Host "Port is busy. Close the old Tomcat window first, then run this script again." -ForegroundColor Red
     $busy | Select-Object LocalPort, State, OwningProcess

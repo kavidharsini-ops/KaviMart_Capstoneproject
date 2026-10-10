@@ -2,6 +2,10 @@
 
 KaviMart is a multi-seller marketplace with separate buyer, seller, and admin workflows. It is built as a Java 17 Maven WAR using Servlet 4, JSP/JSTL, JDBC, H2, and plain CSS/JavaScript. A built-in helper chatbot answers common questions about orders, the bag, reviews, and selling.
 
+## Live Deployment
+
+- **Deployed URL:** [https://your-deployment-url-here.example.com](https://your-deployment-url-here.example.com) *(Placeholder: update with your deployed Tomcat / Render / Cloud URL)*
+
 ## Features
 
 - **Accounts:** buyer and seller registration, BCrypt login, session ID rotation, and active-account checks.
@@ -9,8 +13,8 @@ KaviMart is a multi-seller marketplace with separate buyer, seller, and admin wo
 - **Buyer:** stock-limited cart, transactional checkout, order history, cancellation of pending orders (stock is restored), and verified-purchase reviews.
 - **Seller:** dashboard, product listings (add, edit, remove), and order status progression.
 - **Admin:** ban or activate member accounts, view all orders, and remove listings.
-- **Chatbot:** floating "Ask KaviMart" helper on every page. It uses a mock provider with rate limiting, and the provider can be swapped without changing the servlet.
-- **API:** health check and JSON endpoints under `/api/v1/`.
+- **Chatbot:** floating "Ask KaviMart" helper on every page. Supports Google Gemini API (`GeminiChatProvider`) with server-side API key protection and fallback to a deterministic offline FAQ provider (`MockChatProvider`). Includes session caching and a 10 messages/minute rate limit.
+- **API:** health check and versioned JSON endpoints under `/api/v1/` following standard response envelopes.
 - **Soft delete:** users and products have an `is_active` flag, so old orders stay valid after a listing is removed.
 
 ## Technology
@@ -23,27 +27,50 @@ KaviMart is a multi-seller marketplace with separate buyer, seller, and admin wo
 | Connection pooling | HikariCP |
 | Password hashing | jBCrypt |
 | JSON / logging | Gson, SLF4J, Logback |
+| AI Integration | Java HTTP Client, Google Gemini API |
 | Tests and quality | JUnit 5, Mockito, Checkstyle, SpotBugs |
 | Development server | Embedded Tomcat 9 (dev profile only) |
 | Deployment | Apache Tomcat 9; a Dockerfile for Tomcat 9 is included |
 
 ## Design
 
-### Architecture
+### D1: Architecture Diagram
 
 Requests pass through three filters (encoding, logging, authentication and role check), then a servlet controller, a service, and a DAO that talks to the H2 database. The chat servlet uses its own chat service with a pluggable provider.
 
-![Architecture diagram](docs/architecture.png)
+![D1: Architecture diagram](docs/architecture.png)
 
-### Database (ER diagram)
+### D2: Database (ER Diagram)
 
-![ER diagram](docs/er-diagram.png)
+Entity-Relationship diagram matching `src/main/resources/db/schema.sql`, including `is_active` soft-delete flags on users and products. Versioned schema changes are in `src/main/resources/db/migrations/` (V1 to V4).
 
-The schema is in `src/main/resources/db/schema.sql`. Versioned changes are in `src/main/resources/db/migrations/` (V1 to V4).
+![D2: ER diagram](docs/er-diagram.png)
 
-### Use cases
+### Use Cases Diagram
+
+Actor and workflow interactions for Guest, Buyer, Seller, and Admin across all core features (F1–F8).
 
 ![Use case diagram](docs/use-case.png)
+
+### D3: Sequence Diagram (Place-Order Flow)
+
+End-to-end transactional place-order lifecycle: Browser &rarr; `OrderServlet` &rarr; `OrderService` &rarr; `PaymentStrategy` &rarr; `JdbcCartDao` / `JdbcOrderDao` &rarr; H2 Database (atomic transaction with stock validation, deduction, and cart clearance) and the response redirect path back. Source definition in `docs/sequence-diagram.mmd`.
+
+![D3: Place-order sequence diagram](docs/sequence-diagram.png)
+
+## Screenshots
+
+Place captured interface screenshots in `docs/screenshots/`:
+
+| Screen | File Placeholder | Description |
+| --- | --- | --- |
+| **Catalog & Search** | `docs/screenshots/01-catalog.png` | Public marketplace browsing with search and category filters |
+| **Product Detail & Reviews** | `docs/screenshots/02-product-detail.png` | Item specifications, seller details, stock count, and reviews |
+| **Shopping Bag** | `docs/screenshots/03-cart.png` | Quantity modification and live subtotal computation |
+| **Order History** | `docs/screenshots/04-buyer-orders.png` | Placed orders and order lifecycle tracking |
+| **Seller Dashboard** | `docs/screenshots/05-seller-dashboard.png` | Revenue stats, product inventory, and order status progression |
+| **Admin Moderation** | `docs/screenshots/06-admin-console.png` | User activation/bans and listing management |
+| **AI Assistant** | `docs/screenshots/07-chatbot.png` | Real-time question answering with rate limit and caching |
 
 ## Project structure
 
@@ -55,11 +82,12 @@ src/main/java/com/kavi/kavimart/
   model/        User, Product, CartItem, Review and query helpers
   dto/          request and response objects
   filter/       Encoding, Logging, Auth filters
-  listener/     AppContextListener (starts the database)
+  listener/     AppContextListener (starts the database and wires singletons)
   exception/    custom exceptions
   util/         helpers
 src/main/resources/db/   schema.sql, seed.sql, migrations/
 src/main/webapp/         JSP views (WEB-INF/jsp) and assets (CSS, JS)
+docs/                    Architecture, ER, sequence diagrams, and test specifications
 ```
 
 ## Run locally
@@ -78,12 +106,12 @@ Build and run with the embedded Tomcat (dev profile):
 
 ```sh
 mvn clean verify
-mvn -Pdev package exec:java
+mvn package exec:java
 ```
 
 Open http://localhost:8080. The H2 database is created under `data/kavimart`.
 
-Optional settings: `JDBC_URL`, `JDBC_USER`, `JDBC_PASSWORD`, and `PORT`. You can also copy `src/main/resources/config.properties.example` to `src/main/resources/config.properties`.
+Optional settings: `JDBC_URL`, `JDBC_USER`, `JDBC_PASSWORD`, `PORT`, `AI_CHATBOT_PROVIDER`, and `GEMINI_API_KEY`. You can copy `.env.example` to `.env` or set system environment variables.
 
 ## Deploy on Tomcat 9 (Windows)
 
@@ -112,4 +140,15 @@ The password is the value of `SEED_PASSWORD` that was set when the database was 
 
 ## Test
 
-`mvn clean verify` runs DAO tests against in-memory H2, service tests with Mockito, and servlet tests with request and response mocks. The chatbot service, mock provider, and servlet have their own tests.
+`mvn clean verify` runs 85+ automated tests:
+- DAO tests against in-memory H2 database.
+- Service unit tests with Mockito.
+- Servlet and Filter tests with HTTP mock objects.
+- Security tests verifying SQL injection and XSS neutralization.
+- Chatbot provider and rate limiter tests.
+
+## Known Limitations
+
+1. **H2 Embedded File Mode:** The application uses H2 in embedded file mode (`./data/kavimart;AUTO_SERVER=TRUE`) rather than standalone client-server mode. While ideal for capstone evaluation and local setups, horizontal clustering across multiple separate server nodes requires migrating to a dedicated database server (e.g. PostgreSQL or MySQL).
+2. **Ephemeral Cloud Storage:** On free container hosting platforms (such as Render or Fly.io free tiers without persistent disk attachments), local filesystem files reset whenever containers restart or sleep, reverting seed data back to the initial state.
+3. **Mock Payment Strategy:** Checkout executes against a simulated `MockPaymentStrategy`. Real money is not captured; integrating production UPI/Card payments requires onboarding a merchant gateway like Razorpay or Stripe.

@@ -54,4 +54,34 @@ class MockChatProviderTest {
   void handlesNullMessage() {
     assertEquals(MockChatProvider.OUT_OF_SCOPE_REPLY, provider.getReply(null, ""));
   }
+
+  @Test
+  void answersThankYouQuestion() {
+    assertTrue(provider.getReply("thank you very much", "").contains("welcome"));
+  }
+
+  @Test
+  void answersBagOrCartQuestion() {
+    assertTrue(provider.getReply("how does the bag or cart work", "").contains("Add to bag"));
+  }
+
+  @Test
+  void answersBuyOrOrderQuestion() {
+    assertTrue(provider.getReply("how to place an order", "").contains("Add to bag"));
+  }
+
+  @Test
+  void answersSearchOrFilterQuestion() {
+    assertTrue(provider.getReply("how do I search or filter by category", "").contains("Shop page"));
+  }
+
+  @Test
+  void answersRegisterOrLoginQuestion() {
+    assertTrue(provider.getReply("how do I register or sign up", "").contains("Join us"));
+  }
+
+  @Test
+  void answersStockQuestion() {
+    assertTrue(provider.getReply("what does available stock mean", "").contains("stock count"));
+  }
 }

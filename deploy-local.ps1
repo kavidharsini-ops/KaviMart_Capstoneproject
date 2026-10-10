@@ -1,5 +1,5 @@
 $ErrorActionPreference = "Stop"
-$project = "C:\kavimart"
+$project = "R:\kavimart"
 $tomcat  = "C:\Users\chinn\Downloads\apache-tomcat-9.0.122"
 
 Write-Host "1. Checking Java and Maven..." -ForegroundColor Cyan

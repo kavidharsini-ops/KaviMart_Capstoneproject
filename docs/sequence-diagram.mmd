@@ -1,0 +1,68 @@
+sequenceDiagram
+    autonumber
+    actor Browser as Buyer Browser
+    participant OrderServlet as OrderServlet (Controller)
+    participant OrderService as OrderService (Service)
+    participant Payment as PaymentStrategy (Strategy)
+    participant CartDao as JdbcCartDao (DAO)
+    participant OrderDao as JdbcOrderDao (DAO)
+    participant DB as H2 Database
+
+    Note over Browser,OrderServlet: 1. Place Order Request
+    Browser->>OrderServlet: POST /buyer/orders (Session Cookie)
+    activate OrderServlet
+
+    OrderServlet->>OrderService: placeOrder(buyerId)
+    activate OrderService
+
+    OrderService->>CartDao: getItems(buyerId)
+    activate CartDao
+    CartDao->>DB: SELECT * FROM cart_items WHERE user_id = ?
+    DB-->>CartDao: List<CartItem>
+    CartDao-->>OrderService: List<CartItem>
+    deactivate CartDao
+
+    OrderService->>Payment: charge(buyerId, totalAmount)
+    activate Payment
+    Payment-->>OrderService: success (true)
+    deactivate Payment
+
+    OrderService->>OrderDao: placeOrder(buyerId)
+    activate OrderDao
+
+    Note over OrderDao,DB: Atomic Transaction (setAutoCommit=false)
+    OrderDao->>DB: BEGIN TRANSACTION
+    OrderDao->>DB: SELECT stock_qty FROM products WHERE id IN (...) FOR UPDATE
+    DB-->>OrderDao: current stock
+    OrderDao->>DB: INSERT INTO orders (buyer_id, total_amount, status) VALUES (?, ?, 'PENDING')
+    DB-->>OrderDao: generated order_id
+    OrderDao->>DB: INSERT INTO order_items (order_id, product_id, quantity, unit_price) VALUES (...)
+    OrderDao->>DB: UPDATE products SET stock_qty = stock_qty - ? WHERE id = ?
+    OrderDao->>DB: DELETE FROM cart_items WHERE user_id = ?
+    OrderDao->>DB: COMMIT TRANSACTION
+
+    OrderDao-->>OrderService: OrderSummaryDTO
+    deactivate OrderDao
+
+    OrderService-->>OrderServlet: OrderSummaryDTO
+    deactivate OrderService
+
+    OrderServlet-->>Browser: 302 Redirect to /buyer/orders?placed=1
+    deactivate OrderServlet
+
+    Note over Browser,OrderServlet: 2. View Updated Orders
+    Browser->>OrderServlet: GET /buyer/orders?placed=1
+    activate OrderServlet
+    OrderServlet->>OrderService: buyerOrders(buyerId)
+    activate OrderService
+    OrderService->>OrderDao: findByBuyer(buyerId)
+    activate OrderDao
+    OrderDao->>DB: SELECT * FROM orders WHERE buyer_id = ?
+    DB-->>OrderDao: order records
+    OrderDao-->>OrderService: List<OrderSummaryDTO>
+    deactivate OrderDao
+    OrderService-->>OrderServlet: List<OrderSummaryDTO>
+    deactivate OrderService
+
+    OrderServlet->>Browser: 200 OK (Render buyer/orders.jsp)
+    deactivate OrderServlet

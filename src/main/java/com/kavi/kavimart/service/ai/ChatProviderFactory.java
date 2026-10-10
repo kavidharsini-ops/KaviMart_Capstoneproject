@@ -29,7 +29,11 @@ public final class ChatProviderFactory {
    */
   public static ChatProvider create(String name) {
     if ("gemini".equalsIgnoreCase(name)) {
-      LOG.warn("Gemini provider is not installed yet; using the mock provider.");
+      String key = System.getenv("GEMINI_API_KEY");
+      if (key != null && !key.isBlank()) {
+        return new GeminiChatProvider(key.trim());
+      }
+      LOG.warn("GEMINI_API_KEY is not set; falling back to MockChatProvider.");
     }
     return new MockChatProvider();
   }

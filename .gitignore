@@ -3,6 +3,7 @@ data/
 *.mv.db
 *.trace.db
 .env
+config.properties
 src/main/resources/config.properties
 .vscode/
 .idea/

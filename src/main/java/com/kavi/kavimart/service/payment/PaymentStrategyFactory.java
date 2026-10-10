@@ -1,3 +1,19 @@
 package com.kavi.kavimart.service.payment;
-/** Small factory for the configured payment strategy. */
-public final class PaymentStrategyFactory { private PaymentStrategyFactory(){} /** Return the mock strategy selected for this development build. */ public static PaymentStrategy create(){return new MockPaymentStrategy();} }
+
+/**
+ * Factory creating configured PaymentStrategy instances.
+ */
+public final class PaymentStrategyFactory {
+
+  private PaymentStrategyFactory() {
+  }
+
+  /**
+   * Creates the default PaymentStrategy instance for development and testing.
+   *
+   * @return the configured PaymentStrategy implementation
+   */
+  public static PaymentStrategy create() {
+    return new MockPaymentStrategy();
+  }
+}

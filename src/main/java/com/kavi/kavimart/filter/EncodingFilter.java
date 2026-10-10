@@ -1,4 +1,23 @@
 package com.kavi.kavimart.filter;
-import javax.servlet.*;import java.io.IOException;
-/** Applies UTF-8 encoding consistently to all requests and responses. */
-public class EncodingFilter implements Filter { /** {@inheritDoc} */ public void doFilter(ServletRequest request,ServletResponse response,FilterChain chain)throws IOException,ServletException{request.setCharacterEncoding("UTF-8");response.setCharacterEncoding("UTF-8");chain.doFilter(request,response);} }
+
+import java.io.IOException;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+
+/**
+ * Applies UTF-8 encoding consistently to all incoming requests and responses.
+ */
+public class EncodingFilter implements Filter {
+
+  /** {@inheritDoc} */
+  @Override
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+      throws IOException, ServletException {
+    request.setCharacterEncoding("UTF-8");
+    response.setCharacterEncoding("UTF-8");
+    chain.doFilter(request, response);
+  }
+}

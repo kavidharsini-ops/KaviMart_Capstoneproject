@@ -1,9 +1,84 @@
 package com.kavi.kavimart.model;
 
-/** Authenticated account entity. */
+/**
+ * Authenticated user account entity.
+ */
 public class User {
- private long id; private String name,email,passwordHash,role; private boolean active=true;
- public User(){}
- public User(long id,String name,String email,String passwordHash,String role,boolean active){this.id=id;this.name=name;this.email=email;this.passwordHash=passwordHash;this.role=role;this.active=active;}
- public long getId(){return id;} public void setId(long v){id=v;} public String getName(){return name;} public void setName(String v){name=v;} public String getEmail(){return email;} public void setEmail(String v){email=v;} public String getPasswordHash(){return passwordHash;} public void setPasswordHash(String v){passwordHash=v;} public String getRole(){return role;} public void setRole(String v){role=v;} public boolean isActive(){return active;} public void setActive(boolean v){active=v;}
+  private long id;
+  private String name;
+  private String email;
+  private String passwordHash;
+  private String role;
+  private boolean active = true;
+
+  public User() {
+  }
+
+  /**
+   * Constructs a User entity.
+   *
+   * @param id primary key ID
+   * @param name user full name
+   * @param email normalized email address
+   * @param passwordHash BCrypt password hash
+   * @param role role identifier (BUYER, SELLER, ADMIN)
+   * @param active whether the account is currently enabled
+   */
+  public User(long id, String name, String email, String passwordHash,
+      String role, boolean active) {
+    this.id = id;
+    this.name = name;
+    this.email = email;
+    this.passwordHash = passwordHash;
+    this.role = role;
+    this.active = active;
+  }
+
+  public long getId() {
+    return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getPasswordHash() {
+    return passwordHash;
+  }
+
+  public void setPasswordHash(String passwordHash) {
+    this.passwordHash = passwordHash;
+  }
+
+  public String getRole() {
+    return role;
+  }
+
+  public void setRole(String role) {
+    this.role = role;
+  }
+
+  public boolean isActive() {
+    return active;
+  }
+
+  public void setActive(boolean active) {
+    this.active = active;
+  }
 }

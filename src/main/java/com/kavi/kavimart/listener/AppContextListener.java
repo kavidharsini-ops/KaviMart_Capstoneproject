@@ -1,12 +1,5 @@
 package com.kavi.kavimart.listener;
 
-import com.kavi.kavimart.dao.jdbc.JdbcCartDao;
-import com.kavi.kavimart.dao.jdbc.JdbcDatabaseDao;
-import com.kavi.kavimart.dao.jdbc.JdbcOrderDao;
-import com.kavi.kavimart.dao.jdbc.JdbcProductDao;
-import com.kavi.kavimart.dao.jdbc.JdbcReviewDao;
-import com.kavi.kavimart.dao.jdbc.JdbcUserDao;
-import com.kavi.kavimart.filter.AuthFilter;
 import com.kavi.kavimart.controller.AdminServlet;
 import com.kavi.kavimart.controller.ApiServlet;
 import com.kavi.kavimart.controller.AuthServlet;
@@ -15,6 +8,13 @@ import com.kavi.kavimart.controller.HomeServlet;
 import com.kavi.kavimart.controller.OrderServlet;
 import com.kavi.kavimart.controller.ProductServlet;
 import com.kavi.kavimart.controller.ReviewServlet;
+import com.kavi.kavimart.dao.jdbc.JdbcCartDao;
+import com.kavi.kavimart.dao.jdbc.JdbcDatabaseDao;
+import com.kavi.kavimart.dao.jdbc.JdbcOrderDao;
+import com.kavi.kavimart.dao.jdbc.JdbcProductDao;
+import com.kavi.kavimart.dao.jdbc.JdbcReviewDao;
+import com.kavi.kavimart.dao.jdbc.JdbcUserDao;
+import com.kavi.kavimart.filter.AuthFilter;
 import com.kavi.kavimart.filter.EncodingFilter;
 import com.kavi.kavimart.filter.LoggingFilter;
 import com.kavi.kavimart.service.CartService;
@@ -34,16 +34,18 @@ import java.util.Properties;
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration;
-import javax.servlet.ServletRegistration;
-import javax.servlet.annotation.WebListener;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.ServletRegistration;
+import javax.servlet.annotation.WebListener;
+import javax.servlet.http.HttpServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Creates the pooled data source, initializes schema/data, and wires application services. */
+/**
+ * Creates the pooled data source, initializes schema/data, and wires application services.
+ */
 @WebListener
 public class AppContextListener implements ServletContextListener {
   private static final Logger LOG = LoggerFactory.getLogger(AppContextListener.class);
@@ -89,7 +91,8 @@ public class AppContextListener implements ServletContextListener {
       config.setUsername(username);
       config.setPassword(password);
       config.setDriverClassName("org.h2.Driver");
-      config.setMaximumPoolSize(Integer.parseInt(props.getProperty("hikari.maximumPoolSize", "10")));
+      int maxPool = Integer.parseInt(props.getProperty("hikari.maximumPoolSize", "10"));
+      config.setMaximumPoolSize(maxPool);
       config.setPoolName("KaviMartPool");
       dataSource = new HikariDataSource(config);
       new JdbcDatabaseDao(dataSource).initialize();
